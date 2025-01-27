@@ -67,16 +67,16 @@
                                                         </li>
                                                         <li class="dropdown2"><a href="#">Pages</a>
                                                             <ul>
-                                                                <li><a href="about-us.html">About Us</a></li>
-                                                                <li><a href="our-service.html">Our Services</a></li>
-                                                                <li><a href="pricing.html">Pricing</a></li>
-                                                                <li><a href="contact.html">Contact Us</a></li>
-                                                                <li><a href="faq.html">FAQs</a></li>    
+                                                                <li><a href="{% url 'about' %}">About Us</a></li>
+                                                                <li><a href="{% url 'services' %}">Our Services</a></li>
+                                                                <li><a href="{% url 'pricing' %}">Pricing</a></li>
+                                                                <li><a href="{% url 'contact' %}">Contact Us</a></li>
+                                                                <li><a href="{% url 'faq' %}">FAQs</a></li>    
                                                             </ul>
                                                         </li>   
                                                         <li class="dropdown2"><a href="#">Agent</a>
                                                             <ul>
-                                                                <li><a href="dashboard.html">Dashboard</a></li>
+                                                                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
                                                             </ul>     
                                                         </li>
                                                     </ul>
@@ -87,10 +87,10 @@
                                 </div>
                                 <div class="inner-header-right header-account">
                                     {% if user.is_authenticated %}
-                                        <p>Welcome, {{ user.username }}!</p>
+                                        <p>Welcome, {{ user.first_name }}!</p>
                                        <form method="post" action="{% url 'logout' %}">
                                             {% csrf_token %}
-                                            <button type="submit">Logout</button>
+                                            <button class="tf-btn btn-line btn-login" type="submit">Logout</button>
                                         </form>
                                     {% else %}
                                         <a href="#modalLogin" data-bs-toggle="modal" class="tf-btn btn-line btn-login">
@@ -126,10 +126,13 @@
                     <nav class="menu-box">
                         <div class="nav-logo"><a href="index.html"><img src="images/logo/bnn.png.png" alt="nav-logo" width="174" height="44"></a></div>
                         <div class="bottom-canvas">
-                            {% if user.is_authenticated %}
-                                <a href="{% url 'logout' %}">Logout</a>
+                            {% if user.is_authenticated %} 
+                               <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button class="tf-btn btn-line btn-login" type="submit">Logout</button>
+                                </form>
                             {% else %}
-                               <div class="login-box flex align-center">
+                            <div class="login-box flex align-center">
                                 <a href="#modalLogin" data-bs-toggle="modal">Login</a>
                                 <span>/</span>
                                 <a href="#modalRegister" data-bs-toggle="modal">Register</a>
@@ -139,7 +142,7 @@
                             
                             <div class="menu-outer"></div>
                             <div class="button-mobi-sell">
-                                <a class="tf-btn primary" href="add-property.html">Submit Property</a>
+                                <a class="tf-btn primary" href="{% url 'add_property' %}">Submit Property</a>
                             </div> 
                             <div class="mobi-icon-box">
                                 <div class="box d-flex align-items-center">
@@ -242,13 +245,13 @@
                             <div class="fw-7 text-white footer-heading-mobile">Categories</div>
                             <div class="tf-collapse-content">
                                 <ul class="mt-10 navigation-menu-footer">
-                                    <li> <a href="pricing.html" class="caption-1 text-variant-2">Pricing Plans</a> </li>
+                                    <li> <a href="{% url 'pricing' %}" class="caption-1 text-variant-2">Pricing Plans</a> </li>
     
-                                    <li> <a href="our-service.html" class="caption-1 text-variant-2">Our Services</a> </li>
+                                    <li> <a href="{% url 'services' %}" class="caption-1 text-variant-2">Our Services</a> </li>
     
-                                    <li> <a href="about-us.html" class="caption-1 text-variant-2">About Us</a> </li>
+                                    <li> <a href="{% url 'about' %}" class="caption-1 text-variant-2">About Us</a> </li>
     
-                                    <li> <a href="contact.html" class="caption-1 text-variant-2">Contact Us</a> </li>
+                                    <li> <a href="{% url 'contact' %}" class="caption-1 text-variant-2">Contact Us</a> </li>
                                 </ul>
                             </div>
                             
@@ -262,14 +265,6 @@
                   <div class="container">
                     <div class="content-footer-bottom">
                         <div class="copyright">©2025 Bezaleel Court Properties. All Rights Reserved.</div>
-                          
-                        <ul class="menu-bottom">
-                          <li><a href="our-service.html">Terms Of Services</a> </li>
-
-                          <li><a href="pricing.html">Privacy Policy</a> </li>
-                          <li><a href="contact.html">Cookie Policy</a> </li>
-
-                        </ul>
                     </div>
                   </div>
                 </div>
@@ -293,6 +288,13 @@
     <div class="modal modal-account fade" id="modalLogin">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
+                    {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 <div class="flat-account">
                     <div class="banner-account">
                         <img src="images/banner/banner-account1.jpg" alt="banner">
@@ -302,24 +304,17 @@
     <div class="title-box">
         <h4>Login</h4>
         <span class="close-modal icon-close2" data-bs-dismiss="modal"></span>
-                {% if messages %}
-<div>
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-</div>
-{% endif %}
 
     </div>
     <div class="box">
         <!-- Username or Email Field -->
         <fieldset class="box-fieldset">
-            <label for="username">Account</label>
+            <label for="email">Email</label>
             <div class="ip-field">
                 <svg class="icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="..." stroke="#A3ABB0" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                <input type="text" id="username" name="username" class="form-control" placeholder="Your username" required>   
+                <input type="text" id="email" name="email" class="form-control" placeholder="Your email" required>   
             </div>
         </fieldset>
 
@@ -342,17 +337,17 @@
             <a href="#modalRegister" data-bs-toggle="modal" class="text-primary">Register</a>
         </div>
     </div>
-    <p class="box text-center caption-2">or login with</p>
+    {% comment %} <p class="box text-center caption-2">or login with</p>
     <div class="group-btn">
-        {% comment %} <a href="{% url 'social:begin' 'google' %}" class="btn-social">
+        <a href="{% url 'social:begin' 'google' %}" class="btn-social">
             <img src="{% static 'images/logo/google.jpg' %}" alt="Google">
             Google
         </a>
         <a href="{% url 'social:begin' 'facebook' %}" class="btn-social">
             <img src="{% static 'images/logo/fb.jpg' %}" alt="Facebook">
             Facebook
-        </a> {% endcomment %}
-    </div>
+        </a>
+    </div> {% endcomment %}
 </form>
 
                    
@@ -365,35 +360,59 @@
     <div class="modal modal-account fade" id="modalRegister">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
+                 {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 <div class="flat-account">
                     <div class="banner-account">
                         <img src="images/banner/banner-account2.jpg" alt="banner">
                     </div>
-<form class="form-account" action="{% url 'register' %}" method="POST">
+<form class="form-account" action="{% url 'register' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="title-box">
         <h4>Register</h4>
         <span class="close-modal icon-close2" data-bs-dismiss="modal"></span>
-        {% if messages %}
-<div>
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-</div>
-{% endif %}
 
     </div>
     <div class="box">
         <fieldset class="box-fieldset">
-            <label>User name</label>
+            <label>First name</label>
             <div class="ip-field">
-                <input type="text" name="username" class="form-control" placeholder="User name" required>
+                <input type="text" name="first_name" class="form-control" placeholder="First name" required>
+            </div>
+        </fieldset>
+         <fieldset class="box-fieldset">
+            <label>Last name</label>
+            <div class="ip-field">
+                <input type="text" name="last_name" class="form-control" placeholder="Last name" required>
+            </div>
+        </fieldset>
+        <fieldset class="box-fieldset">
+            <label>Address</label>
+            <div class="ip-field">
+                <input type="text" name="address" class="form-control" placeholder="Adress" required>
+            </div>
+        </fieldset>
+        <fieldset class="box-fieldset">
+            <label>Bio</label>
+            <div class="ip-field">
+                <input type="text" name="bio" class="form-control" placeholder="Bio" required>
             </div>
         </fieldset>
         <fieldset class="box-fieldset">
             <label>Email address</label>
             <div class="ip-field">
                 <input type="email" name="email" class="form-control" placeholder="Email address" required>
+            </div>
+        </fieldset>
+        <fieldset class="box-fieldset">
+            <label>Phone number</label>
+            <div class="ip-field">
+                <input type="number" name="phone_number" class="form-control" placeholder="Phone number" required>
             </div>
         </fieldset>
         <fieldset class="box-fieldset">
@@ -406,6 +425,12 @@
             <label>Confirm password</label>
             <div class="ip-field">
                 <input type="password" name="confirm_password" class="form-control" placeholder="Confirm password" required>
+            </div>
+        </fieldset>
+        <fieldset class="box-fieldset">
+        <label>Profile Picture</label>
+            <div class="ip-field">
+                <input type="file" name="profile_picture" class="form-control" accept="image/*" required>
             </div>
         </fieldset>
         <button type="submit" class="btn btn-primary">Register</button>

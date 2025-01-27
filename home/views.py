@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from property.decorators import verified_user_required
 from .models import Property
 from users.models import CustomUser
 
@@ -10,12 +10,12 @@ def index(request):
     properties = Property.objects.all()
     return render(request, 'properties/index.html', {'properties': properties})
 
-@login_required
+@verified_user_required
 def property_detail(request, property_id):
     property = get_object_or_404(Property, pk=property_id)
     return render(request, 'properties/property_detail.html', {'property': property})
 
-@login_required(login_url='/')
+@verified_user_required
 def dashboard(request):
     user = request.user  # Get the currently logged-in user
     properties = Property.objects.filter(agent=user)
@@ -39,7 +39,7 @@ def dashboard(request):
     })
 
 
-@login_required(login_url='/')
+@verified_user_required
 def add_property(request):
     if request.method == 'POST':
         title = request.POST['title']
@@ -64,7 +64,8 @@ def add_property(request):
     return render(request, 'properties/add-property.html')
 
 
-
+def verification_required(request):
+    return render(request, 'properties/verification_required.html')
 
 def pricing(request):
     return render(request, 'properties/pricing.html')

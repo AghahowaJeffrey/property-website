@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index, dashboard, pricing, about, contact, faq, services, add_property
+from .views import *
 
 urlpatterns = [
     path('', index, name='home'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path('faq/', faq, name='faq'),
     path('services/', services, name='services'),
     path('add-property/', add_property, name='add_property'),
-    
+    path('verification-required/', verification_required, name='verification_required'),
+   
 ]
