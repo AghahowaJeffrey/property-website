@@ -1,9 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from property.decorators import verified_user_required
-from .models import Property
-from users.models import CustomUser
-
-# Create your views here.
+from .models import Property, PropertyImage
+from django.contrib import messages
 
 
 def index(request):
@@ -42,27 +40,83 @@ def dashboard(request):
 @verified_user_required
 def add_property(request):
     if request.method == 'POST':
-        title = request.POST['title']
-        description = request.POST['description']
-        price = request.POST['price']
-        image = request.FILES['image']
+        # Extract data from the request
+        title = request.POST.get('title', '').strip()
+        description = request.POST.get('description', '').strip()
+        address = request.POST.get('address', '').strip()
+        zip_code = request.POST.get('zip_code', '').strip()
+        country = request.POST.get('country', '').strip()
+        state = request.POST.get('state', '').strip()
+        label = request.POST.get('label', '').strip()
+        size = request.POST.get('size', '').strip()
+        land_area = request.POST.get('land_area', '').strip()
+        property_id = request.POST.get('property_id', '').strip()
+        rooms = request.POST.get('rooms', '').strip()
+        bedrooms = request.POST.get('bedrooms', '').strip()
+        bathrooms = request.POST.get('bathrooms', '').strip()
+        year_built = request.POST.get('year_built', '').strip()
+        video_url = request.POST.get('video_url', '').strip()
+        price = request.POST.get('price', '').strip()
+        images = request.FILES.getlist('images')  # Handle multiple images
 
-        user = request.user
-        property = Property.objects.create(
-            title=title,
-            description=description,
-            price=price,
-            image=image,
-            agent=user,
-            status='pending'
-        )
+        # Validation
+        if not title or not description or not price:
+            messages.error(request, 'Title, description, and price are required.')
+            return render(request, 'properties/add-property.html', {'user': request.user})
 
-        property.save()
+        try:
+            price = float(price)
+            if price <= 0:
+                raise ValueError("Price must be greater than zero.")
+        except ValueError:
+            messages.error(request, 'Invalid price. Please enter a positive number.')
+            return render(request, 'properties/add-property.html', {'user': request.user})
 
-        return render(request, 'properties/add-property.html', {'message': 'Property added successfully!'})
+        # Attempt to create the property
+        try:
+            user = request.user
+            property_instance = Property.objects.create(
+                title=title,
+                description=description,
+                address=address if address else None,
+                zip_code=zip_code if zip_code else None,
+                country=country if country else None,
+                state=state if state else None,
+                label=label if label else None,
+                size=float(size) if size else None,
+                land_area=float(land_area) if land_area else None,
+                property_id=property_id if property_id else None,
+                rooms=int(rooms) if rooms else None,
+                bedrooms=int(bedrooms) if bedrooms else None,
+                bathrooms=int(bathrooms) if bathrooms else None,
+                year_built=int(year_built) if year_built else None,
+                video_url=video_url if video_url else None,
+                price=price,
+                agent=user,
+                status='pending'
+            )
 
-    return render(request, 'properties/add-property.html')
+            # Save images (if provided)
+            if images:
+                for image in images:
+                    PropertyImage.objects.create(property=property_instance, image=image)
 
+            # Success message
+            messages.success(request, 'Property added successfully!')
+
+            # Redirect to avoid re-posting form data
+            return redirect('add_property')
+
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return render(request, 'properties/add-property.html', {'user': request.user})
+
+    return render(request, 'properties/add-property.html', {'user': request.user})
+
+
+def my_profile(request):
+    user = request.user
+    return render(request, 'properties/my-profile.html', {'user': user})   
 
 def verification_required(request):
     return render(request, 'properties/verification_required.html')
@@ -81,3 +135,4 @@ def faq(request):
 
 def services(request):
     return render(request, 'properties/our-service.html')
+

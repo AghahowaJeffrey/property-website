@@ -11,5 +11,6 @@ urlpatterns = [
     path('services/', services, name='services'),
     path('add-property/', add_property, name='add_property'),
     path('verification-required/', verification_required, name='verification_required'),
+    path('my-profile/', my_profile, name='my_profile'),
    
 ]
